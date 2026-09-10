@@ -5,7 +5,10 @@ import { TaxConfigService } from '../services/TaxConfigService.js';
 export class TaxDeductionStrategy implements AuditStrategy {
   name = 'Tax & Deductions Auditor';
 
-  async execute(transactions: Transaction[], _customParam?: string): Promise<string> {
+  async execute(
+    transactions: Transaction[],
+    _customParam?: string,
+  ): Promise<string> {
     // 1. Asynchronously fetch tax configuration from the service
     const config = await TaxConfigService.getTaxConfig();
     const standardTaxRate = config.standardTaxRate;
@@ -13,7 +16,7 @@ export class TaxDeductionStrategy implements AuditStrategy {
 
     // Case-insensitive lookup set for qualifying categories
     const deductibleCategorySet = new Set(
-      deductibleCategories.map((cat) => cat.trim().toLowerCase())
+      deductibleCategories.map((cat) => cat.trim().toLowerCase()),
     );
 
     // 2. Separate expense transactions (amount < 0) into deductible vs non-deductible
@@ -45,7 +48,9 @@ export class TaxDeductionStrategy implements AuditStrategy {
     lines.push('          TAX & DEDUCTIONS AUDIT REPORT           ');
     lines.push('==================================================');
     lines.push(`Applied Tax Rate: ${(standardTaxRate * 100).toFixed(2)}%`);
-    lines.push(`Eligible Deductible Categories: ${deductibleCategories.join(', ')}`);
+    lines.push(
+      `Eligible Deductible Categories: ${deductibleCategories.join(', ')}`,
+    );
     lines.push('--------------------------------------------------');
     lines.push('QUALIFYING DEDUCTIBLE TRANSACTIONS:');
 
@@ -53,9 +58,11 @@ export class TaxDeductionStrategy implements AuditStrategy {
       lines.push('  None found.');
     } else {
       deductibleTransactions.forEach((tx) => {
-        const dateStr = tx.date ? new Date(tx.date).toISOString().split('T')[0] : 'N/A';
+        const dateStr = tx.date
+          ? new Date(tx.date).toISOString().split('T')[0]
+          : 'N/A';
         lines.push(
-          `  - [${dateStr}] ${tx.category.padEnd(12)} | ${tx.description.padEnd(25)} | $${Math.abs(tx.amount).toFixed(2)}`
+          `  - [${dateStr}] ${tx.category.padEnd(12)} | ${tx.description.padEnd(25)} | $${Math.abs(tx.amount).toFixed(2)}`,
         );
       });
     }
@@ -63,9 +70,15 @@ export class TaxDeductionStrategy implements AuditStrategy {
     lines.push('--------------------------------------------------');
     lines.push('SUMMARY:');
     lines.push(`  Total Deductible Expenses:   $${totalDeductions.toFixed(2)}`);
-    lines.push(`  Estimated Tax Savings:       $${estimatedTaxSavings.toFixed(2)}`);
-    lines.push(`  Non-Deductible Expenses:     $${totalNonDeductibleExpenses.toFixed(2)}`);
-    lines.push(`  Estimated Sales Tax (VAT):   $${estimatedSalesTaxPaid.toFixed(2)}`);
+    lines.push(
+      `  Estimated Tax Savings:       $${estimatedTaxSavings.toFixed(2)}`,
+    );
+    lines.push(
+      `  Non-Deductible Expenses:     $${totalNonDeductibleExpenses.toFixed(2)}`,
+    );
+    lines.push(
+      `  Estimated Sales Tax (VAT):   $${estimatedSalesTaxPaid.toFixed(2)}`,
+    );
     lines.push('==================================================');
 
     return lines.join('\n');

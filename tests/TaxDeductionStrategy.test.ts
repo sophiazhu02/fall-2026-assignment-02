@@ -8,7 +8,7 @@ describe('TaxDeductionStrategy', () => {
 
   // Mock matches your professor's exact TaxConfig interface
   const mockTaxConfig = {
-    standardTaxRate: 0.20, // 20%
+    standardTaxRate: 0.2, // 20%
     deductibleCategories: ['Charity', 'Business', 'Medical'],
   };
 
@@ -23,10 +23,38 @@ describe('TaxDeductionStrategy', () => {
 
   it('Scenario 1: correctly calculates deductions, savings, and non-deductible VAT on standard input', async () => {
     const mockTransactions: Transaction[] = [
-      { id: '1', date: '2026-01-10', category: 'Charity', description: 'Red Cross Donation', amount: -100, status: 'completed' },
-      { id: '2', date: '2026-01-12', category: 'Business', description: 'Software License', amount: -200, status: 'completed' },
-      { id: '3', date: '2026-01-15', category: 'Groceries', description: 'Supermarket', amount: -50, status: 'completed' },
-      { id: '4', date: '2026-01-20', category: 'Entertainment', description: 'Cinema', amount: -30, status: 'completed' },
+      {
+        id: '1',
+        date: '2026-01-10',
+        category: 'Charity',
+        description: 'Red Cross Donation',
+        amount: -100,
+        status: 'completed',
+      },
+      {
+        id: '2',
+        date: '2026-01-12',
+        category: 'Business',
+        description: 'Software License',
+        amount: -200,
+        status: 'completed',
+      },
+      {
+        id: '3',
+        date: '2026-01-15',
+        category: 'Groceries',
+        description: 'Supermarket',
+        amount: -50,
+        status: 'completed',
+      },
+      {
+        id: '4',
+        date: '2026-01-20',
+        category: 'Entertainment',
+        description: 'Cinema',
+        amount: -30,
+        status: 'completed',
+      },
     ];
 
     const result = await strategy.execute(mockTransactions);
@@ -61,11 +89,32 @@ describe('TaxDeductionStrategy', () => {
   it('Scenario 3: ignores income transactions and handles case-insensitive categories', async () => {
     const mockTransactions: Transaction[] = [
       // Income should not be deducted even if category is 'Business'
-      { id: '1', date: '2026-02-01', category: 'Business', description: 'Client Payment', amount: 1500, status: 'completed' },
+      {
+        id: '1',
+        date: '2026-02-01',
+        category: 'Business',
+        description: 'Client Payment',
+        amount: 1500,
+        status: 'completed',
+      },
       // Lowercase category check ('medical' vs 'Medical')
-      { id: '2', date: '2026-02-05', category: 'medical', description: 'Dentist Visit', amount: -250, status: 'completed' },
+      {
+        id: '2',
+        date: '2026-02-05',
+        category: 'medical',
+        description: 'Dentist Visit',
+        amount: -250,
+        status: 'completed',
+      },
       // Non-deductible expense
-      { id: '3', date: '2026-02-10', category: 'Utilities', description: 'Electric Bill', amount: -100, status: 'completed' },
+      {
+        id: '3',
+        date: '2026-02-10',
+        category: 'Utilities',
+        description: 'Electric Bill',
+        amount: -100,
+        status: 'completed',
+      },
     ];
 
     const result = await strategy.execute(mockTransactions);
