@@ -6,7 +6,7 @@ import { Transaction } from '../src/models.js';
 describe('TaxDeductionStrategy', () => {
   let strategy: TaxDeductionStrategy;
 
-  // Mock matches your professor's exact TaxConfig interface
+
   const mockTaxConfig = {
     standardTaxRate: 0.2, // 20%
     deductibleCategories: ['Charity', 'Business', 'Medical'],
