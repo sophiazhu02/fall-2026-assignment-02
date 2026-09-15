@@ -34,15 +34,77 @@ describe('BudgetLimitStrategy (Feature 1)', () => {
   //   expect(result).not.toContain('Rent over budget');
   // });
 
-  it.todo('should group expenses correctly by category and sum them');
+  it('should group expenses correctly by category and sum them', async() => {
+    const mockBudgets = {Rent: 1000};
+    const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolvedValue(mockBudgets);
 
-  it.todo('should calculate absolute overage amounts and percentage exceeded');
+    const testTransactions: Transaction[] = [
+       { id: '1', date: '2026-09-09', amount: -900.00, category: 'Rent', description: 'Apartment', status: 'completed' },
+       { id: '2', date: '2026-09-10', amount: -150.00, category: 'Rent', description: 'Apartment', status: 'completed' },
+    ];
 
-  it.todo(
-    'should list the specific transactions contributing to categories that are over budget',
-  );
+    const result = await strategy.execute(testTransactions);
 
-  it.todo('should handle scenarios where no categories are over budget');
+    expect(spy).toHaveBeenCalled();
+    expect(result).toContain('Rent');
+    expect(result).toContain('1050');
+  });
 
-  it.todo('should handle empty transaction list gracefully');
+  it('should calculate absolute overage amounts and percentage exceeded', async() => {
+    const mockBudgets = {Rent: 1000};
+    const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolvedValue(mockBudgets);
+
+    const testTransactions: Transaction[] = [
+       { id: '1', date: '2026-09-09', amount: -1100.00, category: 'Rent', description: 'Apartment', status: 'completed' },
+    ];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(spy).toHaveBeenCalled();
+    expect(result).toContain('Overage Amount: $100');
+    expect(result).toContain('Percentages: 110.00%');
+  });
+
+  it('should list the specific transactions contributing to categories that are over budget', async() => {
+    const mockBudgets = {Rent: 1000};
+    const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolvedValue(mockBudgets);
+
+    const testTransactions: Transaction[] = [
+       { id: '1', date: '2026-09-09', amount: -900.00, category: 'Rent', description: 'Apartment', status: 'completed' },
+       { id: '2', date: '2026-09-10', amount: -150.00, category: 'Rent', description: 'Apartment', status: 'completed' },
+    ];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(spy).toHaveBeenCalled();
+    expect(result).toContain('Cause of Overage:');
+    expect(result).toContain('Apartment: $900');
+    expect(result).toContain('Apartment: $150');
+  });
+
+  it('should handle scenarios where no categories are over budget', async() => {
+    const mockBudgets = {Rent: 1000};
+    const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolvedValue(mockBudgets);
+
+    const testTransactions: Transaction[] = [
+       { id: '1', date: '2026-09-09', amount: -999.00, category: 'Rent', description: 'Apartment', status: 'completed' },
+    ];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(spy).toHaveBeenCalled();
+    expect(result).toBe('');
+  });
+
+  it('should handle empty transaction list gracefully', async() => {
+    const mockBudgets = {Rent: 1000};
+    const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolvedValue(mockBudgets);
+
+    const testTransactions: Transaction[] = [];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(spy).toHaveBeenCalled();
+    expect(result).toBe('');
+  });
 });
