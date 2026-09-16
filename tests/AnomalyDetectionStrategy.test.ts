@@ -32,7 +32,7 @@ describe('AnomalyDetectionStrategy (Feature 2)', () => {
   it('should detect outlier transactions exceeding the configured max amount limit', async () => {
     const mockRules = {
       maxTransactionAmount: 250.0,
-      flaggedStatuses: ['flagged'],
+      flaggedStatuses: ['flagged' as const],
     };
     const spy = vi
       .spyOn(AnomalyRulesService, 'getRules')
@@ -67,7 +67,7 @@ describe('AnomalyDetectionStrategy (Feature 2)', () => {
   it('should identify duplicate transactions sharing identical date, amount, category, and description', async () => {
     const mockRules = {
       maxTransactionAmount: 250.0,
-      flaggedStatuses: ['flagged'],
+      flaggedStatuses: ['flagged' as const],
     };
     const spy = vi
       .spyOn(AnomalyRulesService, 'getRules')
@@ -105,7 +105,7 @@ describe('AnomalyDetectionStrategy (Feature 2)', () => {
   it('should flag transactions matching standard flagged statuses in the rules', async () => {
     const mockRules = {
       maxTransactionAmount: 250.0,
-      flaggedStatuses: ['flagged'],
+      flaggedStatuses: ['flagged' as const],
     };
     const spy = vi
       .spyOn(AnomalyRulesService, 'getRules')
@@ -142,7 +142,7 @@ describe('AnomalyDetectionStrategy (Feature 2)', () => {
   it('should calculate correct transaction anomaly rates and total flagged valuation', async () => {
     const mockRules = {
       maxTransactionAmount: 250.0,
-      flaggedStatuses: ['flagged'],
+      flaggedStatuses: ['flagged' as const],
     };
     const spy = vi
       .spyOn(AnomalyRulesService, 'getRules')
@@ -177,7 +177,7 @@ describe('AnomalyDetectionStrategy (Feature 2)', () => {
   it('should output a clean, readable text audit report detailing warnings', async () => {
     const mockRules = {
       maxTransactionAmount: 250.0,
-      flaggedStatuses: ['flagged'],
+      flaggedStatuses: ['flagged' as const],
     };
     const spy = vi
       .spyOn(AnomalyRulesService, 'getRules')
