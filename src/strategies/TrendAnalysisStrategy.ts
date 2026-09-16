@@ -57,8 +57,54 @@ export class TrendAnalysisStrategy implements AuditStrategy {
     });
 
     // 5. Highlight any category with a variance exceeding +/- 20%.
+
+    const growthCategories = comparisons.filter((item) => item.variance > 20);
+
+    const savingsCategories = comparisons.filter((item) => item.variance < -20);
+
     // 6. Format and return a text-based audit report detailing comparison metrics.
 
-    throw new Error('Method not implemented.');
+    let report = 'HISTORICAL TREND AUDIT REPORT\n\n';
+
+    report += 'Category | Current Spending | Historical Average | Change\n';
+    report += '----------------------------------------------------------\n';
+
+    comparisons.forEach((item) => {
+      const historicalDisplay =
+        item.historical === undefined
+          ? 'N/A'
+          : `$${item.historical.toFixed(2)}`;
+
+      const varianceDisplay =
+        item.historical === undefined ? 'N/A' : `${item.variance.toFixed(1)}%`;
+
+      report +=
+        `${item.category} | ` +
+        `$${item.current.toFixed(2)} | ` +
+        `${historicalDisplay} | ` +
+        `${varianceDisplay}\n`;
+    });
+
+    report += '\nSignificant Growth Categories\n';
+
+    if (growthCategories.length === 0) {
+      report += 'None\n';
+    } else {
+      growthCategories.forEach((item) => {
+        report += `${item.category}: +${item.variance.toFixed(1)}%\n`;
+      });
+    }
+
+    report += '\nSignificant Savings Categories\n';
+
+    if (savingsCategories.length === 0) {
+      report += 'None\n';
+    } else {
+      savingsCategories.forEach((item) => {
+        report += `${item.category}: ${item.variance.toFixed(1)}%\n`;
+      });
+    }
+
+    return report;
   }
 }
