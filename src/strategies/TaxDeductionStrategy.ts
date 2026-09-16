@@ -1,24 +1,86 @@
+import { AuditStrategy } from './AuditStrategy.js';
 import { Transaction } from '../models.js';
 import { TaxConfigService } from '../services/TaxConfigService.js';
-import { AuditStrategy } from './AuditStrategy.js';
 
 export class TaxDeductionStrategy implements AuditStrategy {
-  public readonly name = 'Tax & Deductions Auditor';
-  public readonly description =
-    'Identifies eligible tax-deductible expenses and estimates savings';
+  name = 'Tax & Deductions Auditor';
 
-  public async execute(
+  async execute(
     transactions: Transaction[],
-    customParam?: string,
+    _customParam?: string,
   ): Promise<string> {
-    // TODO: Feature 4 - Implement this strategy.
-    // 1. Call TaxConfigService.getTaxConfig() asynchronously.
-    // 2. Filter expenses (amount < 0) that belong to eligible tax-deductible categories.
-    // 3. Sum total deductible expenses.
-    // 4. Estimate tax savings based on the standard tax rate: total deductible * taxRate.
-    // 5. Estimate sales tax/VAT paid on NON-deductible expenses using standard tax rate.
-    // 6. Format and return a text-based audit report detailing total deductions, savings, VAT estimates, and eligible transactions.
+    // 1. Asynchronously fetch tax configuration from the service
+    const config = await TaxConfigService.getTaxConfig();
+    const standardTaxRate = config.standardTaxRate;
+    const deductibleCategories = config.deductibleCategories || [];
 
-    throw new Error('Method not implemented.');
+    // Case-insensitive lookup set for qualifying categories
+    const deductibleCategorySet = new Set(
+      deductibleCategories.map((cat) => cat.trim().toLowerCase()),
+    );
+
+    // 2. Separate expense transactions (amount < 0) into deductible vs non-deductible
+    const deductibleTransactions: Transaction[] = [];
+    let totalDeductions = 0;
+    let totalNonDeductibleExpenses = 0;
+
+    for (const tx of transactions) {
+      if (tx.amount < 0) {
+        const absAmount = Math.abs(tx.amount);
+        const categoryKey = tx.category.trim().toLowerCase();
+
+        if (deductibleCategorySet.has(categoryKey)) {
+          deductibleTransactions.push(tx);
+          totalDeductions += absAmount;
+        } else {
+          totalNonDeductibleExpenses += absAmount;
+        }
+      }
+    }
+
+    // 3. Tax calculations
+    const estimatedTaxSavings = totalDeductions * standardTaxRate;
+    const estimatedSalesTaxPaid = totalNonDeductibleExpenses * standardTaxRate;
+
+    // 4. Build report output
+    const lines: string[] = [];
+    lines.push('==================================================');
+    lines.push('          TAX & DEDUCTIONS AUDIT REPORT           ');
+    lines.push('==================================================');
+    lines.push(`Applied Tax Rate: ${(standardTaxRate * 100).toFixed(2)}%`);
+    lines.push(
+      `Eligible Deductible Categories: ${deductibleCategories.join(', ')}`,
+    );
+    lines.push('--------------------------------------------------');
+    lines.push('QUALIFYING DEDUCTIBLE TRANSACTIONS:');
+
+    if (deductibleTransactions.length === 0) {
+      lines.push('  None found.');
+    } else {
+      deductibleTransactions.forEach((tx) => {
+        const dateStr = tx.date
+          ? new Date(tx.date).toISOString().split('T')[0]
+          : 'N/A';
+        lines.push(
+          `  - [${dateStr}] ${tx.category.padEnd(12)} | ${tx.description.padEnd(25)} | $${Math.abs(tx.amount).toFixed(2)}`,
+        );
+      });
+    }
+
+    lines.push('--------------------------------------------------');
+    lines.push('SUMMARY:');
+    lines.push(`  Total Deductible Expenses:   $${totalDeductions.toFixed(2)}`);
+    lines.push(
+      `  Estimated Tax Savings:       $${estimatedTaxSavings.toFixed(2)}`,
+    );
+    lines.push(
+      `  Non-Deductible Expenses:     $${totalNonDeductibleExpenses.toFixed(2)}`,
+    );
+    lines.push(
+      `  Estimated Sales Tax (VAT):   $${estimatedSalesTaxPaid.toFixed(2)}`,
+    );
+    lines.push('==================================================');
+
+    return lines.join('\n');
   }
 }
