@@ -175,7 +175,7 @@ describe('TrendAnalysisStrategy (Feature 3)', () => {
 
     const result = await strategy.execute(testTransactions);
 
-    expect(result).toContain('Travel');
+    expect(result).toContain('Travel | $100.00 | N/A | N/A');
   });
 
   it('should format historical vs current comparisons in a readable report', async () => {

@@ -45,7 +45,7 @@ export class TrendAnalysisStrategy implements AuditStrategy {
 
       const variance =
         historical === undefined || historical === 0
-          ? 0
+          ? NaN
           : ((current - historical) / historical) * 100;
 
       return {
@@ -76,7 +76,9 @@ export class TrendAnalysisStrategy implements AuditStrategy {
           : `$${item.historical.toFixed(2)}`;
 
       const varianceDisplay =
-        item.historical === undefined ? 'N/A' : `${item.variance.toFixed(1)}%`;
+        item.historical === undefined || item.historical === 0
+          ? 'N/A'
+          : `${item.variance.toFixed(1)}%`;
 
       report +=
         `${item.category} | ` +
