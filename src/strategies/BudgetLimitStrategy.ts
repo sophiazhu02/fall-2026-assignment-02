@@ -31,7 +31,7 @@ export class BudgetLimitStrategy implements AuditStrategy {
     for(const [category, spending] of categories){
       if(spending > budgets[category]){
         const overage = spending - budgets[category];
-        const percentages = ((spending / budgets[category]) * 100).toFixed(2);
+        const percentages = (((spending - budgets[category]) / budgets[category]) * 100).toFixed(2);
         const causeOfOverage = transactions.filter(transaction => transaction.category === category && transaction.amount < 0);
         auditReport += `Category: ${category}\n`;
         auditReport += `Budget Limit: $${budgets[category]}\n`;
