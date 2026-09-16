@@ -13,7 +13,21 @@ export class TrendAnalysisStrategy implements AuditStrategy {
   ): Promise<string> {
     // TODO: Feature 3 - Implement this strategy.
     // 1. Call HistoricalDataService.getHistoricalAverages() asynchronously.
-    // 2. Group current expenses (amount < 0) by category and compute category totals.
+
+    const historicalAverages =
+      await HistoricalDataService.getHistoricalAverages();
+
+    // 2. Group current expenses (amount < 0) by category and compute category totals
+
+    const currentTotals: Record<string, number> = {};
+
+    transactions
+      .filter((t) => t.amount < 0)
+      .forEach((t) => {
+        currentTotals[t.category] =
+          (currentTotals[t.category] || 0) + Math.abs(t.amount);
+      });
+
     // 3. For each category, compare current total spending against the historical average.
     // 4. Calculate the rate of change / variance percentage: ((current - historical) / historical) * 100.
     // 5. Highlight any category with a variance exceeding +/- 20%.
