@@ -29,7 +29,33 @@ export class TrendAnalysisStrategy implements AuditStrategy {
       });
 
     // 3. For each category, compare current total spending against the historical average.
-    // 4. Calculate the rate of change / variance percentage: ((current - historical) / historical) * 100.
+
+    const allCategories = Array.from(
+      new Set([
+        ...Object.keys(historicalAverages),
+        ...Object.keys(currentTotals),
+      ]),
+    );
+
+    const comparisons = allCategories.map((category) => {
+      const historical = historicalAverages[category];
+      const current = currentTotals[category] || 0;
+
+      // 4. Calculate the rate of change / variance percentage: ((current - historical) / historical) * 100.
+
+      const variance =
+        historical === undefined || historical === 0
+          ? 0
+          : ((current - historical) / historical) * 100;
+
+      return {
+        category,
+        current,
+        historical,
+        variance,
+      };
+    });
+
     // 5. Highlight any category with a variance exceeding +/- 20%.
     // 6. Format and return a text-based audit report detailing comparison metrics.
 
