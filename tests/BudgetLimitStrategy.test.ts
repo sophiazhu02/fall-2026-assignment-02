@@ -62,7 +62,7 @@ describe('BudgetLimitStrategy (Feature 1)', () => {
 
     expect(spy).toHaveBeenCalled();
     expect(result).toContain('Overage Amount: $100');
-    expect(result).toContain('Percentages: 10.00%');
+    expect(result).toContain('Percentages: 110.00%');
   });
 
   it('should list the specific transactions contributing to categories that are over budget', async() => {
